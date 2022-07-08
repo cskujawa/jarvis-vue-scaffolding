@@ -14,13 +14,5 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    \Cookie::queue(\Cookie::forget('grafana_dashboard_loaded'));
-    return redirect()->route('dashboard');
-})->middleware(['auth']);
-
-Route::get('/dashboard', function () {
-    \Cookie::queue(\Cookie::forget('grafana_dashboard_loaded'));
-    return view('dashboard');
-})->middleware(['auth'])->name('dashboard');
-
-require __DIR__.'/auth.php';
+    return view('welcome');
+});
