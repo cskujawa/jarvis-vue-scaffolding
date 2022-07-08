@@ -1,0 +1,126 @@
+version: "3.7"
+
+volumes:
+  prometheus-data: {}
+  grafana-data: {}
+  db-data: {}
+
+services:
+  app:
+    build:
+      args:
+        user: jarvis
+        uid: 1001
+      context: ./interface/laravel
+      dockerfile: ./../../Dockerfile
+    image: jarvis
+    container_name: jarvis-app
+    restart: unless-stopped
+    working_dir: /var/www/
+    volumes:
+      - ./interface/laravel:/var/www
+    networks:
+      - jarvis
+
+  db:
+    image: mysql:8.0
+    container_name: jarvis-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    command: --innodb_buffer_pool_size=5M --innodb_log_buffer_size=256K --max_connections=10 --key_buffer_size=8 --thread_cache_size=0 --host_cache_size=0 
+    command: --innodb_ft_cache_size=1600000 --innodb_ft_total_cache_size=32000000 --thread_stack=131072 --sort_buffer_size=32K --read_buffer_size=8200
+    command: --read_rnd_buffer_size=8200 --max_heap_table_size=16K --tmp_table_size=1K --bulk_insert_buffer_size=0 --join_buffer_size=128 
+    command: --net_buffer_length=1K --innodb_sort_buffer_size=64K --binlog_cache_size=4K --binlog_stmt_cache_size=4K --performance_schema=off
+
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - jarvis
+
+  nginx:
+    image: nginx:stable-alpine
+    container_name: nginx
+    restart: unless-stopped
+    ports:
+      - 8000:80
+    volumes:
+      - ./interface/laravel:/var/www
+      - ./system/nginx:/etc/nginx/conf.d
+    networks:
+      - jarvis
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - 9090:9090
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.console.libraries=/usr/share/prometheus/console_libraries
+      - --web.console.templates=/usr/share/prometheus/consoles
+    volumes:
+      - prometheus-data:/prometheus
+      - ./monitoring/prometheus/:/etc/prometheus/
+    depends_on:
+      - cadvisor
+    networks:
+      - jarvis
+    restart: always
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    ports:
+      - 8080:8080
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    privileged: true
+    devices:
+      - /dev/kmsg:/dev/kmsg
+    depends_on:
+      - redis
+    networks:
+      - jarvis
+    restart: always
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - 6379:6379
+    networks:
+      - jarvis
+    restart: always
+
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: grafana
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./interface/grafana/provisioning:/etc/grafana/provisioning
+    env_file:
+      - ./interface/grafana/config.monitoring
+    depends_on:
+      - prometheus
+    networks:
+      - jarvis
+    restart: always
+
+networks:
+  jarvis:
+    driver: bridge
