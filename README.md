@@ -37,7 +37,7 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-<img src=https://github.com/cskujawa/jarvis-ai/blob/main/interface/laravel/public/image/app.png alt="App Example">
+<img src=https://github.com/cskujawa/jarvis-vue-scaffolding/blob/main/interface/laravel/public/image/jarvis-vue-scaffolding.png alt="App Example">
 
 ### :warning: :warning: :warning: Disclaimer :warning: :warning: :warning:
 This documentation and the project as a whole are a work in progress and I will likely be switching to a different repo to continue development.
