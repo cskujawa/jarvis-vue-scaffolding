@@ -41,6 +41,7 @@
 
 ### :warning: :warning: :warning: Disclaimer :warning: :warning: :warning:
 This documentation and the project as a whole are a work in progress and I will likely be switching to a different repo to continue development.
+#### :warning: Any changes made to your server, personal computer, or otherwise machine following any suggestions on this readme are done so at your own risk. :warning:
 
 J.A.R.V.I.S. is just a really versatile information system.
 
