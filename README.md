@@ -62,6 +62,8 @@ Grafana implements graphing nirvana but requires data sources to be connected. T
 NGINX is what allows all of the containers to commuincate with each other.
 
 * [![Laravel][Laravel.com]][Laravel-url]
+* [![Vue][Vuejs.org]][Vuejs-url]
+* [![Tailwindcss][Tailwindcss.com]][Tailwindcss-url]
 * [![MySQL][Mysql.com]][Mysql-url]
 * [![Grafana][Grafana.com]][Grafana-url]
 * [![Prometheus][Prometheus.io]][Prometheus-url]
