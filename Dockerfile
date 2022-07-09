@@ -1,4 +1,4 @@
-FROM php:7.4-fpm
+FROM php:8.1.7-fpm
 
 # Arguments defined in docker-compose.yml
 ARG user
@@ -15,6 +15,14 @@ RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Optimize MySQL memory usage
+#This didn't work, the file wouldn't copy, or it was overwritten
+#COPY ./database/optimize-mysql-memory.cnf /etc/mysql/conf.d/mysql.cnf
+
+# Get LTS Node
+RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
+RUN apt-get install -y nodejs
 
 # Create system user to run Composer and Artisan Commands
 RUN useradd -G www-data,root -u $uid -d /home/$user $user
